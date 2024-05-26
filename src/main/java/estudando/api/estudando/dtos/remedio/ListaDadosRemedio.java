@@ -14,10 +14,20 @@ public record ListaDadosRemedio(
        String lote , 
        long quantidade  ,
        LocalDate validade , 
-       LaboratorioEnum laboratorio
+       LaboratorioEnum laboratorio,
+       boolean status
 
 ) {
     public ListaDadosRemedio( RemedioModal remedio){
-        this(remedio.getId(),remedio.getNome(), remedio.getVia(), remedio.getLote(), remedio.getQuantidade(), remedio.getValidade(), remedio.getLaboratorio());
+        this(
+            remedio.getId(),
+            remedio.getNome(), 
+            remedio.getVia(), 
+            remedio.getLote(), 
+            remedio.getQuantidade(), 
+            remedio.getValidade(),
+             remedio.getLaboratorio(),
+             remedio.isStatus()
+             );
     }
 }

@@ -13,7 +13,7 @@ import jakarta.validation.constraints.Future;
 public record DadosUpdate(
       String nome, 
       ViaEnum via ,
-        String lote, 
+      String lote, 
       long quantidade  ,
       @Future LocalDate validade, 
       LaboratorioEnum laboratorio,

@@ -17,6 +17,7 @@ import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -25,7 +26,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
 
 
 @RestController
@@ -44,9 +44,11 @@ public class RemedioController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ListaDadosRemedio>> getremedios(){
-        var remedios = repository.findAll().stream().map(ListaDadosRemedio::new).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(remedios);
+    public ResponseEntity<List<ListaDadosRemedio>> getremedios(@Param(value = "status") boolean status){
+        
+        var remedios = repository.findByStatus(status).stream().map(ListaDadosRemedio::new).toList();
+
+        return ResponseEntity.ok(remedios);
     }
 
     @GetMapping("/{id}")
@@ -76,6 +78,20 @@ public class RemedioController {
         return ResponseEntity.status(HttpStatus.OK).body(remedioDtos.get(0));
     }
 
+    @PutMapping("/reativar/{id}")
+    @Transactional
+    public ResponseEntity<Object> reativar(@PathVariable long id){
+        Optional<RemedioModal> remedioOptional = repository.findById(id);
+
+        if(remedioOptional.isEmpty())
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("not found");
+        
+        var remedio = remedioOptional.get();
+        remedio.reativar();
+
+        return ResponseEntity.noContent().build();
+    }
+
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Object> deleteRemedio( @PathVariable(name = "id") long id){
@@ -86,5 +102,20 @@ public class RemedioController {
         }
         repository.deleteById(remedio.get().getId());
         return ResponseEntity.status(HttpStatus.OK).body("okay");
+    }
+
+    @DeleteMapping("/inativar/{id}")
+    @Transactional
+    public ResponseEntity<Object> desativando(@PathVariable(name = "id") long id){
+        Optional<RemedioModal> remedio = repository.findById(id);
+
+        if(remedio.isEmpty()){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
+        }
+
+        var remedioModal = remedio.get();
+        remedioModal.inativar();
+        
+        return ResponseEntity.noContent().build();
     }
 }

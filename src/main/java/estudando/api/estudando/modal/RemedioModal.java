@@ -34,15 +34,16 @@ public class RemedioModal {
     private String lote;
     private long quantidade;
     private LocalDate validade;
+    private boolean status;
 
     @Enumerated(EnumType.STRING)
     private LaboratorioEnum laboratorio;
 
     public void atualizar(DadosUpdate dados){
-        if(dados.nome() != null || dados.nome() !=""){
+        if( dados.nome() !=null){
             this.setNome(dados.nome());
         }
-         if(dados.lote() != null){
+        if(dados.lote() != null){
             this.setLote(dados.lote());
         }
          if(dados.quantidade() > 0){
@@ -57,6 +58,13 @@ public class RemedioModal {
         if(dados.validade() != null){
             this.setValidade(dados.validade());
         }
+    }
+
+    public void inativar(){
+        this.status = false;
+    }
+    public void reativar(){
+        this.status =true;
     }
 
 }
