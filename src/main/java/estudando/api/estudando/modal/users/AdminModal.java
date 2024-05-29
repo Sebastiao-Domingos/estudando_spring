@@ -1,6 +1,7 @@
 
 package estudando.api.estudando.modal.users;
 
+import estudando.api.estudando.dtos.users.AdminDtoUpdate;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -20,7 +21,7 @@ import lombok.Setter;
 @Table(name = "Admin")
 @Getter
 @Setter
-@AllArgsConstructor
+@AllArgsConstructor 
 @NoArgsConstructor
 public class AdminModal {
     @Id
@@ -30,4 +31,19 @@ public class AdminModal {
     private String email;
     private String palavra_passe;
     private boolean status;
+
+
+    public void atualizar( AdminDtoUpdate dados){
+        if(dados.nome() != null){
+            this.setNome(dados.nome());
+        }
+
+        if(dados.email() != null){
+            this.setEmail(dados.email());
+        }
+
+        if(dados.palavra_passe() !=null){
+            this.setPalavra_passe(dados.palavra_passe());
+        }
+    }
 }

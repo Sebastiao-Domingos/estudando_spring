@@ -1,6 +1,7 @@
 package estudando.api.estudando.controllers;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import estudando.api.estudando.dtos.remedio.DadosUpdate;
 import estudando.api.estudando.dtos.remedio.DadosaCadastro;
@@ -36,11 +37,12 @@ public class RemedioController {
     
     @PostMapping
     @Transactional
-    public ResponseEntity<Object>  cadastrar( @RequestBody @Valid DadosaCadastro dados ){
+    public ResponseEntity<Object>  cadastrar( @RequestBody @Valid DadosaCadastro dados, UriComponentsBuilder uriBuilder ){
         var remedio = new RemedioModal();
         BeanUtils.copyProperties(dados , remedio);
         repository.save(remedio);
-        return ResponseEntity.status(HttpStatus.CREATED).body("created");
+        var uri = uriBuilder.path("/remedios/{id}").buildAndExpand(remedio.getId()).toUri(); 
+        return ResponseEntity.created(uri).body(new ListaDadosRemedio(remedio));
     }
 
     @GetMapping
