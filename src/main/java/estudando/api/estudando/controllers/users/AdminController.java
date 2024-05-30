@@ -1,8 +1,6 @@
 package estudando.api.estudando.controllers.users;
 
 import java.util.List;
-import java.util.Optional;
-
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -50,37 +48,23 @@ public class AdminController {
         var admin = new AdminModal();
         BeanUtils.copyProperties(dados, admin);
         repository.save(admin);
-
         var uri = uriBuilder.path("/administradores/{id}").buildAndExpand(admin.getId()).toUri();
-
         return ResponseEntity.created(uri).body( new ListarDadosAdmin(admin));
     }
 
     @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<Object> atualizarAdmin(@PathVariable(name = "id") long id, @RequestBody @Valid AdminDtoUpdate dados){
-        Optional<AdminModal> adminOptional = repository.findById(id);
-        if(adminOptional.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-
-        var admin = adminOptional.get();
-
+        var admin = repository.getReferenceById(id);
         admin.atualizar(dados);
-
         return ResponseEntity.ok(new ListarDadosAdmin(admin));
-
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Object> deletar(@PathVariable(name = "id") long id){
-        Optional<AdminModal> adminOptional = repository.findById(id);
-
-        if(adminOptional.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        repository.delete(adminOptional.get());
+       var admin = repository.getReferenceById(id);
+        repository.delete(admin);
         return ResponseEntity.ok("deleted");
      }
 }

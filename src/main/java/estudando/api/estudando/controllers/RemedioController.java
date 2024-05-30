@@ -14,12 +14,10 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,77 +45,45 @@ public class RemedioController {
 
     @GetMapping
     public ResponseEntity<List<ListaDadosRemedio>> getremedios(@Param(value = "status") boolean status){
-        
         var remedios = repository.findByStatus(status).stream().map(ListaDadosRemedio::new).toList();
-
         return ResponseEntity.ok(remedios);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Object> getOneRemedio(@PathVariable(name = "id") long id){
-        Optional<RemedioModal> remeOptional = repository.findById(id);
-
-        if( remeOptional.isEmpty() ){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
-        }
-
-        var remedio = remeOptional.stream().map(ListaDadosRemedio::new).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(remedio.get(0));
+        var remeOptional = repository.getReferenceById(id);
+        return ResponseEntity.ok(new ListaDadosRemedio(remeOptional));
     }
 
     @PutMapping("/{id}")
     @Transactional
     public ResponseEntity<Object> updateRemedio(@PathVariable(name = "id") long id , @RequestBody @Valid DadosUpdate dados){
-        Optional<RemedioModal> remedio = repository.findById(id);
-
-        if(remedio.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Remedio nao encontrado");
-        }
-
-        var remedioRecebido = remedio.get();
-        remedioRecebido.atualizar(dados);
-        var remedioDtos = remedio.stream().map(ListaDadosRemedio::new).toList();
-        return ResponseEntity.status(HttpStatus.OK).body(remedioDtos.get(0));
+        var remedio = repository.getReferenceById(id);
+        remedio.atualizar(dados);
+        return ResponseEntity.ok(new ListaDadosRemedio(remedio));
     }
 
     @PutMapping("/reativar/{id}")
     @Transactional
     public ResponseEntity<Object> reativar(@PathVariable long id){
-        Optional<RemedioModal> remedioOptional = repository.findById(id);
-
-        if(remedioOptional.isEmpty())
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("not found");
-        
-        var remedio = remedioOptional.get();
-        remedio.reativar();
-
+        var remedioOptional = repository.getReferenceById(id);
+        remedioOptional.reativar();
         return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{id}")
     @Transactional
     public ResponseEntity<Object> deleteRemedio( @PathVariable(name = "id") long id){
-        Optional<RemedioModal> remedio = repository.findById(id);
-
-        if(remedio.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Remedio nao encontrado");
-        }
-        repository.deleteById(remedio.get().getId());
-        return ResponseEntity.status(HttpStatus.OK).body("okay");
+        var remedio = repository.getReferenceById(id);
+        repository.delete(remedio);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/inativar/{id}")
     @Transactional
     public ResponseEntity<Object> desativando(@PathVariable(name = "id") long id){
-        Optional<RemedioModal> remedio = repository.findById(id);
-
-        if(remedio.isEmpty()){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Not found");
-        }
-
-        var remedioModal = remedio.get();
-        remedioModal.inativar();
-        
+        var remedio = repository.getReferenceById(id);
+        remedio.inativar();
         return ResponseEntity.noContent().build();
     }
 }
